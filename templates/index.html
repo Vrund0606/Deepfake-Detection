@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepfake Detection Result </title>
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+</head>
+
+<body>
+
+    <!-- Deepfake Particle Canvas -->
+    <div id="particles-js"></div>
+
+    <!-- Navigation / Header -->
+    <header class="levitate">
+        <div class="header-inner">
+            <div class="title-container">
+                <h1>Deepfake Detection </h1>
+                <p></p>
+            </div>
+            <a href="/logout" class="glass-btn header-btn hover-lift">Logout</a>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- INITIAL UPLOAD PANEL -->
+        <div id="upload-panel" class="glass-card levitate text-center">
+            <div id="drop-zone" class="drop-zone hover-lift">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="64"
+                    style="margin-bottom:15px; color:var(--text-light)">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <p>Drag Media here</p>
+            </div>
+            <video id="video-preview" controls hidden style="width:100%; border-radius:12px; margin-top:20px;"></video>
+            <input type="file" id="file-input" accept="video/*" hidden>
+            <button id="btn-scan" class="glass-btn btn-primary hover-lift mt-20" disabled>Initiate Quantum Scan</button>
+        </div>
+
+        <!-- LOAD OVERLAY -->
+        <div id="loading-panel" class="glass-card levitate text-center hidden">
+            <div class="loader-sphere"></div>
+            <h2 style="color:var(--text-light); margin-top: 30px;">Decoupling Neural Layers...</h2>
+            <p style="color:var(--text-muted)">Please wait while we perform topological extraction.</p>
+        </div>
+
+        <!-- RESULTS DASHBOARD -->
+        <main id="result-dashboard" class="hidden">
+
+            <div class="row">
+                <!-- Main Result Card (Left Floating) -->
+                <div id="main-result" class="glass-card main-result-card hover-lift levitate-slow">
+                    <div class="status-container">
+                        <i id="status-icon">✓</i>
+                    </div>
+                    <h2 id="result-label" class="neon-text">REAL</h2>
+                    <p class="confidence-text">Confidence: <span id="conf-val">96.45%</span></p>
+
+                    <div class="risk-level">
+                        Risk Level: <span id="risk-val" class="risk-badge">Low Risk</span>
+                    </div>
+                </div>
+
+                <!-- Confidence Donut Chart -->
+                <div class="glass-card chart-card hover-lift">
+                    <div class="chart-wrapper">
+                        <canvas id="donutChart"></canvas>
+                        <div class="donut-center" id="donut-text">96%<br><small>REAL</small></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Insights Card -->
+                <div class="glass-card insight-card hover-lift">
+                    <h3>Metadata Insights</h3>
+                    <ul class="insight-list">
+                        <li>
+                            <span class="lbl-key">Faces Detected</span>
+                            <span class="lbl-val" id="faces-val">3</span>
+                        </li>
+                        <li>
+                            <span class="lbl-key">Processing Time</span>
+                            <span class="lbl-val" id="time-val">2.8s</span>
+                        </li>
+                        <li>
+                            <span class="lbl-key">Frame Consistency</span>
+                            <span class="lbl-val">High</span>
+                        </li>
+                        <li>
+                            <span class="lbl-key">Manipulation Signs</span>
+                            <span class="lbl-val" id="manip-val">Low</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Model Performance Bar Chart -->
+                <div class="glass-card bar-card hover-lift">
+                    <h3>Model Architecture Performance</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORENSIC REASONS PANEL -->
+            <div class="glass-card reasons-section hover-lift" id="reasons-section">
+                <div class="reasons-header">
+                    <span class="reasons-icon" id="reasons-icon">⚠️</span>
+                    <div>
+                        <h3 id="reasons-title">Why is this a Deepfake?</h3>
+                        <p id="reasons-subtitle" class="reasons-subtitle">Forensic analysis identified the following manipulation signals</p>
+                    </div>
+                </div>
+                <div id="reasons-list" class="reasons-list"></div>
+            </div>
+
+            <!-- FRAME ANALYSIS GALLERY -->
+            <div class="glass-card frames-section hover-lift" id="frames-section">
+                <div class="frames-header">
+                    <h3 id="frames-title">🎞️ Frame-by-Frame Analysis</h3>
+                    <div class="frames-legend">
+                        <span class="legend-dot fake-dot"></span><span>FAKE</span>
+                        <span class="legend-dot real-dot"></span><span>REAL</span>
+                    </div>
+                    <div class="frames-filter">
+                        <button class="filter-btn active" id="filter-all" onclick="filterFrames('all')">All</button>
+                        <button class="filter-btn" id="filter-fake" onclick="filterFrames('fake')">Fake Only</button>
+                        <button class="filter-btn" id="filter-real" onclick="filterFrames('real')">Real Only</button>
+                    </div>
+                </div>
+                <div id="frames-summary-bar">
+                    <span id="frames-count-label">0 frames analyzed</span>
+                    <span id="frames-fake-count" class="fake-count-badge">0 FAKE</span>
+                </div>
+                <div id="frame-gallery" class="frame-gallery"></div>
+                <p id="no-frames-msg" class="no-frames-msg hidden">No frames to display.</p>
+            </div>
+
+            <!-- Action Area -->
+            <div class="action-buttons">
+                <button class="glass-btn hover-lift btn-secondary" onclick="exportPDF()">Download Report</button>
+                <button class="glass-btn hover-lift btn-primary" id="analyze-again">Analyze Again</button>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>

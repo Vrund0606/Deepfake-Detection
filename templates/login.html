@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner Gateway - Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='master.css') }}">
+    <style>
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            padding: 3rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 60%);
+            animation: pulse 6s infinite linear;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .login-card > * {
+            position: relative;
+            z-index: 1;
+        }
+        .login-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--cyan);
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+        }
+        .login-card p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .input-group input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+        }
+        .error-msg {
+            color: var(--color-fake);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+        .success-msg {
+            color: var(--color-real);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--cyan);
+            text-decoration: underline;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            margin-top: 1.5rem;
+        }
+        .toggle-btn:hover { color: #fff; }
+        
+        .hidden { display: none !important; }
+
+        @keyframes pulse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+        </div>
+    </header>
+
+    <main class="container login-container">
+        <div class="card login-card">
+            <h2 id="card-title">SYSTEM LOCK</h2>
+            <p id="card-subtitle">Please authenticate to access the scanner.</p>
+            
+            {% if error %}
+                <div class="error-msg">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="success-msg">{{ success }}</div>
+            {% endif %}
+
+            <!-- LOGIN FORM -->
+            <form id="form-login" action="/login" method="POST">
+                <div class="input-group">
+                    <label>Clearance ID</label>
+                    <input type="text" name="username" placeholder="Enter username" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>Access Code</label>
+                    <input type="password" name="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn-glow" style="margin-top: 1rem;">AUTHENTICATE</button>
+            </form>
+
+            <!-- REGISTER FORM (Hidden by default) -->
+            <form id="form-register" action="/register" method="POST" class="hidden">
+                <div class="input-group">
+                    <label>New Clearance ID</label>
+                    <input type="text" name="new_username" placeholder="Choose a username" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>New Access Code</label>
+                    <input type="password" name="new_password" placeholder="Create a password" required>
+                </div>
+                <button type="submit" class="btn-glow" style="margin-top: 1rem; background: linear-gradient(90deg, #34D399, #06B6D4);">ENROLL ID</button>
+            </form>
+
+            <button class="toggle-btn" id="toggle-view">Need an ID? Register here.</button>
+        </div>
+    </main>
+
+    <script>
+        const btnToggle = document.getElementById('toggle-view');
+        const formLogin = document.getElementById('form-login');
+        const formRegister = document.getElementById('form-register');
+        const cardTitle = document.getElementById('card-title');
+        const cardSubtitle = document.getElementById('card-subtitle');
+
+        let isLogin = true;
+
+        btnToggle.addEventListener('click', () => {
+            isLogin = !isLogin;
+            if (isLogin) {
+                formLogin.classList.remove('hidden');
+                formRegister.classList.add('hidden');
+                cardTitle.innerText = "SYSTEM LOCK";
+                cardSubtitle.innerText = "Please authenticate to access the scanner.";
+                btnToggle.innerText = "Need an ID? Register here.";
+            } else {
+                formLogin.classList.add('hidden');
+                formRegister.classList.remove('hidden');
+                cardTitle.innerText = "NEW ENROLLMENT";
+                cardSubtitle.innerText = "Register your credentials to database.";
+                btnToggle.innerText = "Already have an ID? Login here.";
+            }
+        });
+    </script>
+</body>
+</html>
