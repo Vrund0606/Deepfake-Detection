@@ -22,4 +22,4 @@ A Python-based system for detecting deepfake media using PyTorch and OpenCV.
 python main.py --video path/to/video.mp4
 ```
 
-This will extract faces from the video and run the detection model (currently in baseline mode).
+This will extracts face from the video and run the detection model (currently in baseline mode).
