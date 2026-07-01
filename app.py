@@ -4,6 +4,7 @@ import os
 import json
 from src.processing_service import DetectionService
 
+# Vrund Joshi
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  
